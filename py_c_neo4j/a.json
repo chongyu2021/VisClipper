@@ -1,0 +1,8 @@
+{
+  "tag": "tag1",
+  "name": "testme1",
+  "location": "F:",
+  "start_frame": "2:00",
+  "end_frame": "4:00",
+  "description": "a test"
+}
