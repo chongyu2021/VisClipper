@@ -53,10 +53,11 @@ def sync_vivogpt(single_prompt):
     start_time = time.time()
     url = 'https://{}{}'.format(DOMAIN, URI)
     response = requests.post(url, json=data, headers=headers, params=params)
+    content = None
 
     if response.status_code == 200:
         res_obj = response.json()
-        print(f'response:{res_obj}')
+        # print(f'response:{res_obj}')
         if res_obj['code'] == 0 and res_obj.get('data'):
             content = res_obj['data']['content']
             print(f'final content:\n{content}')

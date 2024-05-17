@@ -5,6 +5,7 @@ from Describer.Slice import slice_video
 from Describer.BLIP import BLIP
 from Describer.translator import baiduTranslate
 from Blue_LM.llm_caller import sync_vivogpt
+import time
 
 
 
@@ -34,18 +35,28 @@ def extract_frame(video_path, frame_index):
     return frame
 
 def generate_details(prompt):
-    # 调用 sync_vivogpt 函数生成描述性字符串
-    description = sync_vivogpt(prompt)
+    try:
+        # 调用百度翻译，将描述翻译成中文
+        zh_description = baiduTranslate(prompt,flag='zh') 
 
-    # 调用百度翻译，将描述翻译成中文
-    zh_description = baiduTranslate(description,flag='zh') 
+        # 调用 sync_vivogpt 函数生成描述性字符串
+        description = sync_vivogpt(zh_description)
+        while description is None:
+            time.sleep(1)
+            description = sync_vivogpt(zh_description)
+            
+        # 调用百度翻译，将描述翻译成英文
+        en_description = baiduTranslate(description,flag='en') 
 
-    details_list = zh_description.split(',')
-    
-    # 去除每个字符串的首尾空格
-    details_list = [baiduTranslate(detail.strip(),flag='en') for detail in details_list]
-    
-    return details_list
+        en_description = en_description.replace("?",",")
+        details_list = en_description.split(',')
+        
+        # 去除每个字符串的首尾空格
+        details_list = [detail.strip() for detail in details_list]
+        
+        return details_list
+    except:
+        return []
 
 def describe_scenes(video_path, blip_model, ssim_threshold=0.75, min_frames_per_slice=30):
     """
@@ -82,10 +93,15 @@ def describe_scenes(video_path, blip_model, ssim_threshold=0.75, min_frames_per_
 
         # 生成细节查询
         detail_querys = generate_details(description)
-        for query in detail_query:
-            description = blip_model.generate_text(Image.fromarray(frame),prompt=query+":")
-            descriptions += description
 
+        for query in detail_querys:
+            description = blip_model.generate_text(Image.fromarray(frame),prompt=query+":")
+            if len(description)>0:
+                descriptions += description + '/'
+        
+
+        print(descriptions)
+        time.sleep(1)
         # 将键转换为字符串类型并存储描述
         key = f"{start_index}_{end_index}"
         scene_descriptions[key] = descriptions

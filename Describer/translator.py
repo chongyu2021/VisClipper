@@ -57,12 +57,12 @@ def baiduTranslate(translate_text, flag='en'):
 if __name__ == '__main__':
     # 手动录入翻译内容，q存放
     # q = raw_input("please input the word you want to translate:")
-    q = "介绍一下整本书，比如是传主的人生，或者作者写这本书的特色。可参看目录、序言或简介等资料。"
-    # q = "this is a english sentence."
+    # q = "介绍一下整本书，比如是传主的人生，或者作者写这本书的特色。可参看目录、序言或简介等资料。"
+    q = "this is a english sentence."
     '''
     flag=zh 输入的句子翻译成中文
     flag=en 输入的句子翻译成英文
     '''
-    result = baiduTranslate(q, flag='en')  # 百度翻译
+    result = baiduTranslate(q, flag='zh')  # 百度翻译
     print("原句:"+q)
     print(result)
